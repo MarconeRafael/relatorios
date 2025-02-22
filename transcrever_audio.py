@@ -27,4 +27,3 @@ def transcrever_audio(audio_ogg):
     transcricao_texto = transcription["text"]
     print(f"Transcrição: {transcricao_texto}")
     return transcricao_texto
-transcrever_audio("carlos.ogg")
