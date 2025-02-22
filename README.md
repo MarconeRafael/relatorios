@@ -67,4 +67,4 @@ O **horário de fim** permanecerá vazio até ser preenchido posteriormente.
 
 ## 📜 Licença
 
-Este projeto está licenciado sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
+Este projeto está licenciado sob a licença Apache 2.0. Consulte o arquivo `LICENSE` para mais detalhes.
