@@ -10,13 +10,14 @@ O projeto está organizado da seguinte maneira:
 relatorios/
 │── data/                  # Diretório para armazenar arquivos de áudio
 │   ├── WhatsApp Ptt 2025-02-22 at 08.54.35.ogg  # Exemplo de áudio
+│── ├── relatorios.csv         # Arquivo onde os relatórios são armazenados
 │── keys.py                # Arquivo contendo a chave da API OpenAI
 │── LICENSE                # Licença do projeto
-│── organiza.py            # Código para organizar e salvar o relatório
+│── inicio.py            # Código para organizar e salvar o relatório
 │── transcrever_audio.py   # Código para transcrever o áudio
 │── __pycache__/           # Cache de compilação do Python
 │── venv/                  # Ambiente virtual para dependências
-│── relatorios.csv         # Arquivo onde os relatórios são armazenados
+
 ```
 
 ## 🚀 Como Usar
