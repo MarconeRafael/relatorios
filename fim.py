@@ -1,12 +1,13 @@
+
 import openai
 import csv
 import os
-import re
-from datetime import datetime, timedelta
 from keys import chave_openai
-
+from transcrever_audio import transcrever_audio
+from datetime import datetime
 # Configuração da chave da API
-openai.api_key = chave_openai
+openai.api_key = chave_openai  
+
 
 # Nome do arquivo CSV com data atual
 data_atual = datetime.now().strftime("%Y-%m-%d")
@@ -18,42 +19,11 @@ if not os.path.exists(CSV_FILE):
         writer = csv.writer(file)
         writer.writerow(["Horário de Início", "Tarefa", "Nome do Cliente", "Horário de Fim", "Material Gasto"])
 
-def parse_horario(horario_str, start_time_str):
-    """
-    Converte textos como "9 e 39", "9h39" ou "39" em "HHhMM".
-    Se apenas minutos, calcula com base no horário de início.
-    """
-    try:
-        # Tenta extrair horas e minutos com regex
-        match = re.match(r'(\d{1,2})[hH :]*(?:e|:| e )? *(\d{2})', horario_str)
-        if match:
-            hora = int(match.group(1))
-            minuto = int(match.group(2))
-            return f"{hora}h{minuto:02d}"
-        
-        # Se for apenas minutos (ex: "39")
-        elif horario_str.isdigit() and len(horario_str) == 2:
-            start = datetime.strptime(start_time_str, "%Hh%M")
-            minutos = int(horario_str)
-            
-            # Calcula se a hora deve incrementar
-            if minutos < start.minute:
-                hora_final = start.hour + 1
-                if hora_final >= 24:
-                    hora_final = 0
-                return f"{hora_final}h{minutos:02d}"
-            else:
-                return f"{start.hour}h{minutos:02d}"
-        
-        # Caso padrão (retorna o valor original se não conseguir parsear)
-        return horario_str
-    
-    except:
-        return horario_str  # Fallback seguro
-
 def organiza_fim(texto):
     """
-    Extrai informações do término da tarefa com GPT e atualiza o CSV.
+    Utiliza o GPT para extrair informações sobre término da tarefa, materiais gastos e horário de fim.
+    O GPT deve retornar o texto no formato:
+    "Tarefa de (tarefa), do cliente (nome do cliente), foi gasto (material gasto), terminou na hora (hora de término)"
     """
     try:
         resposta = openai.ChatCompletion.create(
@@ -62,9 +32,10 @@ def organiza_fim(texto):
                 {
                     "role": "system",
                     "content": (
-                        "Extraia as informações no formato: "
+                        "Leia o texto e extraia as seguintes informações no formato: "
                         "'Tarefa de (tarefa), do cliente (nome do cliente), foi gasto (material gasto), terminou na hora (hora de término)'. "
-                        "FORMATO DA HORA: SEMPRE 'HHhMM' (ex: 9h39). Se faltar dados, informe 'Faltando: ...'"
+                        "considere diferentes formas de falar a hora por exemplo 9 e 39 = 9:39 = 9 horas e 39 minutos etc"
+                        "Se alguma informação estiver faltando, diga: 'Faltando: (a, b, c...)'."
                     )
                 },
                 {"role": "user", "content": texto}
@@ -74,6 +45,8 @@ def organiza_fim(texto):
         )
         
         resposta_texto = resposta["choices"][0]["message"]["content"].strip()
+
+        # Extraindo informações do texto usando a formatação esperada
         partes = resposta_texto.split(", ")
         dados = {chave: "" for chave in ["Nome do Cliente", "Tarefa", "Horário de Fim", "Material Gasto"]}
 
@@ -81,37 +54,49 @@ def organiza_fim(texto):
             dados["Tarefa"] = partes[0].split("Tarefa de ")[1] if "Tarefa de " in partes[0] else ""
             dados["Nome do Cliente"] = partes[1].split("do cliente ")[1] if "do cliente " in partes[1] else ""
             dados["Material Gasto"] = partes[2].split("foi gasto ")[1] if "foi gasto " in partes[2] else ""
-            dados["Horário de Fim"] = partes[3].split("terminou na hora ")[1] if "terminou na hora " in partes[3] else ""
+            
+            # Ajustando a extração do horário de fim
+            horario_fim = partes[3].split("terminou na hora ")[1] if "terminou na hora " in partes[3] else ""
+            
+            # Corrigindo a extração da hora e minutos
+            if horario_fim:
+                # Adiciona o "h" se a hora estiver no formato de minutos
+                if len(horario_fim) == 2:  # Exemplo: 39
+                    dados["Horário de Fim"] = f"0h{horario_fim}"  # Como o horário 39 seria 0h39
+                else:
+                    dados["Horário de Fim"] = horario_fim.strip()
+            else:
+                dados["Horário de Fim"] = ""
+                
         except IndexError:
-            pass
+            pass  # Mantém os campos vazios caso algo falte
 
-        # Atualiza o CSV com parsing dinâmico do horário
+        # Atualiza o CSV apenas nas linhas correspondentes
         linhas_atualizadas = []
         with open(CSV_FILE, mode="r", newline="", encoding="utf-8") as file:
             reader = csv.reader(file)
-            header = next(reader)
+            header = next(reader)  # Lê o cabeçalho
             linhas = list(reader)
 
         for linha in linhas:
+            # linha[1] -> Tarefa; linha[2] -> Nome do Cliente
             if (
                 dados["Nome do Cliente"].strip().lower() in linha[2].strip().lower() and
                 dados["Tarefa"].strip().lower() in linha[1].strip().lower() and
                 linha[3].strip() == "" and
                 linha[4].strip() == ""
             ):
-                # Parseia o horário de término com base no horário de início da linha
-                horario_fim_parsed = parse_horario(dados["Horário de Fim"], linha[0])
-                linha[3] = horario_fim_parsed
-                linha[4] = dados["Material Gasto"]
+                linha[3] = dados["Horário de Fim"]  # Preenche Horário de Fim
+                linha[4] = dados["Material Gasto"]  # Preenche Material Gasto
             linhas_atualizadas.append(linha)
 
-        # Reescreve o CSV
+        # Reescreve o arquivo CSV atualizado
         with open(CSV_FILE, mode="w", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            writer.writerow(header)
-            writer.writerows(linhas_atualizadas)
+            writer.writerow(header)  # Escreve o cabeçalho
+            writer.writerows(linhas_atualizadas)  # Escreve os dados atualizados
 
-        return resposta_texto
+        return resposta_texto  # Retorna o texto formatado para conferência
 
     except openai.error.OpenAIError as e:
         return f"Erro na API OpenAI: {str(e)}"
