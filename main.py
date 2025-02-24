@@ -1,11 +1,12 @@
 from transcrever_audio import transcrever_audio
 from inico import organiza_inicio
 from fim import organiza_fim
+from gerar_pdf import gerar_pdf, ler_csv
 import os
 import shutil
 import time
 from datetime import datetime, timedelta
-
+from eficiencia import calcular_eficiencia, salvar_csv
 AUDIO_DIR = "data/audios"
 TEMP_DIR = "data/temp_audio"
 DELETE_AFTER_HOURS = 24  # tempo para deletar os arquivos após 24 horas
@@ -77,7 +78,30 @@ def main():
         print(relatorio_inicio)
         print("✅ Relatório final gerado com sucesso:")
         print(relatorio_final)
+        CSV_FILE = "data/relatorios/relatorio_2025-02-24.csv"
+        PDF_FILE = "data/relatorios/relatorio_completo.pdf"
 
+        relatorios = ler_csv(CSV_FILE)
+        if relatorios:
+            gerar_pdf(relatorios, PDF_FILE)
+        else:
+                print("⚠️ Nenhum dado disponível para gerar o relatório.")
+        """Gera o relatório de eficiência e chama a função para gerar o PDF e salvar em CSV."""
+        caminho_csv = "data/relatorios/relatorio_2025-02-24.csv"
+        PDF_FILE = "data/relatorios/relatorio_eficiencia.pdf"
+        CSV_FILE = "data/relatorios/relatorio_eficiencia.csv"  # Novo caminho para o CSV
+
+        relatorios = calcular_eficiencia(caminho_csv)
+        print("Relatórios gerados:", relatorios)  # Debug: mostra os relatórios gerados
+
+        if relatorios:
+            try:
+                gerar_pdf(relatorios, PDF_FILE)
+            except Exception as e:
+                print(f"❌ Erro ao gerar o PDF: {e}")
+            salvar_csv(relatorios, CSV_FILE)  # Salva em CSV
+        else:
+            print("⚠️ Nenhum dado disponível para gerar o relatório de eficiência.")
     except Exception as e:
         print(f"❌ Erro durante a execução: {e}")
 

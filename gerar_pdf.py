@@ -4,33 +4,29 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
 from datetime import datetime
 
-# Nome do arquivo CSV
-CSV_FILE = "data/relatorios/relatorio_2025-02-22.csv"
-PDF_FILE = "data/relatorios/relatorio_completo.pdf"
-
-def ler_csv():
+def ler_csv(caminho_csv):
     """
     Lê o arquivo CSV e retorna uma lista de dicionários com as informações.
     """
     relatorios = []
     try:
-        with open(CSV_FILE, mode="r", newline="", encoding="utf-8") as file:
+        with open(caminho_csv, mode="r", newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file)
             for row in reader:
                 relatorios.append(row)
     except FileNotFoundError:
-        print(f"⚠️ Arquivo CSV não encontrado: {CSV_FILE}")
+        print(f"⚠️ Arquivo CSV não encontrado: {caminho_csv}")
     except Exception as e:
         print(f"❌ Erro ao ler o arquivo CSV: {e}")
     return relatorios
 
-def gerar_pdf(relatorios):
+def gerar_pdf(relatorios, pdf_file):
     """
     Gera um PDF com base nos dados extraídos do arquivo CSV.
     """
     try:
         # Cria o PDF com o formato A4
-        doc = SimpleDocTemplate(PDF_FILE, pagesize=letter)
+        doc = SimpleDocTemplate(pdf_file, pagesize=letter)
         elementos = []
 
         # Título do PDF
@@ -94,7 +90,7 @@ def gerar_pdf(relatorios):
         # Gera o PDF
         doc.build(elementos)
 
-        print(f"✅ Relatório gerado com sucesso! PDF salvo em: {PDF_FILE}")
+        print(f"✅ Relatório gerado com sucesso! PDF salvo em: {pdf_file}")
 
     except Exception as e:
         print(f"❌ Erro ao gerar o PDF: {e}")
@@ -103,9 +99,12 @@ def main():
     """
     Função principal para gerar o relatório completo em PDF a partir do arquivo CSV.
     """
-    relatorios = ler_csv()
+    caminho_csv = "data/relatorios/relatorio_2025-02-22.csv"  # Substitua pelo caminho do seu CSV
+    pdf_file = "data/relatorios/relatorio_completo.pdf"  # Substitua pelo caminho do PDF desejado
+
+    relatorios = ler_csv(caminho_csv)
     if relatorios:
-        gerar_pdf(relatorios)
+        gerar_pdf(relatorios, pdf_file)
     else:
         print("⚠️ Nenhum dado disponível para gerar o relatório.")
 
