@@ -2,6 +2,7 @@ from transcrever_audio import transcrever_audio
 from inico import organiza_inicio
 from fim import organiza_fim
 from gerar_pdf import gerar_pdf, ler_csv
+from graficos import gerar_graficos
 import os
 import shutil
 import time
@@ -102,6 +103,9 @@ def main():
             salvar_csv(relatorios, CSV_FILE)  # Salva em CSV
         else:
             print("⚠️ Nenhum dado disponível para gerar o relatório de eficiência.")
+        caminho_csv = 'data/relatorios/relatorio_eficiencia.csv'
+        gerar_graficos(caminho_csv)
+
     except Exception as e:
         print(f"❌ Erro durante a execução: {e}")
 
