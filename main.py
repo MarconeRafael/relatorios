@@ -1,16 +1,18 @@
 from transcrever_audio import transcrever_audio
-from inico import organiza_inicio
+from inicio import organiza_inicio
 from fim import organiza_fim
 from gerar_pdf import gerar_pdf, ler_csv
-from graficos import gerar_graficos
+from graficos_tempo import gerar_graficos_barras_tempo, gerar_graficos_pontos_tempo
+from graficos_material import gerar_graficos_barras_material, gerar_graficos_pontos_material
 import os
 import shutil
-import time
 from datetime import datetime, timedelta
-from eficiencia import calcular_eficiencia, salvar_csv
+from eficiencia_tempo import gerar_relatorio_eficiencia_tempo, salvar_csv_tempo
+from eficiencia_material import gerar_relatorio_eficiencia_material, salvar_csv_material
+
 AUDIO_DIR = "data/audios"
 TEMP_DIR = "data/temp_audio"
-DELETE_AFTER_HOURS = 24  # tempo para deletar os arquivos após 24 horas
+DELETE_AFTER_HOURS = 24  # Tempo para deletar os arquivos após 24 horas
 
 def mover_arquivos_para_temp():
     """
@@ -34,11 +36,9 @@ def deletar_arquivos_temp():
     """
     try:
         tempo_atual = datetime.now()
-
         for arquivo in os.listdir(TEMP_DIR):
             caminho_arquivo = os.path.join(TEMP_DIR, arquivo)
             if os.path.isfile(caminho_arquivo):
-                # Verifica o tempo de modificação do arquivo
                 tempo_modificacao = datetime.fromtimestamp(os.path.getmtime(caminho_arquivo))
                 if tempo_atual - tempo_modificacao > timedelta(hours=DELETE_AFTER_HOURS):
                     os.remove(caminho_arquivo)
@@ -48,21 +48,30 @@ def deletar_arquivos_temp():
 
 def main():
     """
-    Função principal para processar o arquivo de áudio, transcrever o texto e organizá-lo em um relatório.
+    Função principal para processar os arquivos de áudio, transcrever,
+    organizar os dados e gerar os relatórios.
+    
+    Ordem de execução:
+    1. Transcrição dos áudios.
+    2. Processamento do relatório de início.
+    3. Processamento do relatório de fim.
+    4. Geração do relatório completo (CSV e PDF).
+    5. Geração do relatório de eficiência de tempo.
+    6. Geração do relatório de eficiência de material.
+    7. Geração dos gráficos.
     """
     # Definir os caminhos dos arquivos de áudio
     path_inicio = "data/audios/WhatsApp Ptt 2025-02-22 at 08.54.35.ogg"
     path_final = "data/audios/WhatsApp Ptt 2025-02-22 at 09.39.32.ogg"
     
     try:
-        print(f"📂 Processando o arquivo: {path_inicio}")
-        print(f"📂 Processando o arquivo: {path_final}")
+        print(f"📂 Processando o arquivo de início: {path_inicio}")
+        print(f"📂 Processando o arquivo final: {path_final}")
 
-        # Transcrever áudio
+        # Transcrever os áudios
         texto_inicial = transcrever_audio(path_inicio)
         texto_final = transcrever_audio(path_final)
         
-        # Verificar se a transcrição foi realizada com sucesso
         if not texto_inicial:
             print("⚠️ Nenhum texto foi transcrito do áudio de início.")
             return
@@ -70,42 +79,52 @@ def main():
             print("⚠️ Nenhum texto foi transcrito do áudio final.")
             return
         
-        # Gerar relatórios
+        # Processar as transcrições: Início e Fim
         relatorio_inicio = organiza_inicio(texto_inicial)
         relatorio_final = organiza_fim(texto_final)
         
-        # Exibir os relatórios gerados
-        print("✅ Relatório inicial gerado com sucesso:")
+        print("✅ Relatório de início gerado:")
         print(relatorio_inicio)
-        print("✅ Relatório final gerado com sucesso:")
+        print("✅ Relatório de fim gerado:")
         print(relatorio_final)
-        CSV_FILE = "data/relatorios/relatorio_2025-02-24.csv"
-        PDF_FILE = "data/relatorios/relatorio_completo.pdf"
-
-        relatorios = ler_csv(CSV_FILE)
-        if relatorios:
-            gerar_pdf(relatorios, PDF_FILE)
+        
+        # Definir o caminho do relatório principal com base na data atual
+        data_atual = datetime.now().strftime("%Y-%m-%d")
+        csv_principal = f"data/relatorios/relatorio_{data_atual}.csv"
+        pdf_principal = f"data/relatorios/relatorio_completo_{data_atual}.pdf"
+        
+        # Gerar o relatório completo em PDF a partir do CSV principal
+        relatorios_completos = ler_csv(csv_principal)
+        if relatorios_completos:
+            gerar_pdf(relatorios_completos, pdf_principal)
+            print(f"✅ Relatório completo gerado em PDF: {pdf_principal}")
         else:
-                print("⚠️ Nenhum dado disponível para gerar o relatório.")
-        """Gera o relatório de eficiência e chama a função para gerar o PDF e salvar em CSV."""
-        caminho_csv = "data/relatorios/relatorio_2025-02-24.csv"
-        PDF_FILE = "data/relatorios/relatorio_eficiencia.pdf"
-        CSV_FILE = "data/relatorios/relatorio_eficiencia.csv"  # Novo caminho para o CSV
-
-        relatorios = calcular_eficiencia(caminho_csv)
-        print("Relatórios gerados:", relatorios)  # Debug: mostra os relatórios gerados
-
-        if relatorios:
-            try:
-                gerar_pdf(relatorios, PDF_FILE)
-            except Exception as e:
-                print(f"❌ Erro ao gerar o PDF: {e}")
-            salvar_csv(relatorios, CSV_FILE)  # Salva em CSV
+            print("⚠️ Nenhum dado disponível para gerar o relatório completo.")
+        
+        # Geração do relatório de eficiência de tempo
+        relatorios_tempo = gerar_relatorio_eficiencia_tempo()
+        csv_eficiencia_tempo = "data/relatorios/relatorio_eficiencia_tempo.csv"
+        if relatorios_tempo:
+            salvar_csv_tempo(relatorios_tempo, csv_eficiencia_tempo)
+            print(f"✅ Relatório de eficiência de tempo salvo em CSV: {csv_eficiencia_tempo}")
         else:
-            print("⚠️ Nenhum dado disponível para gerar o relatório de eficiência.")
-        caminho_csv = 'data/relatorios/relatorio_eficiencia.csv'
-        gerar_graficos(caminho_csv)
-
+            print("⚠️ Nenhum dado disponível para gerar o relatório de eficiência de tempo.")
+        
+        # Geração do relatório de eficiência de material
+        relatorios_material = gerar_relatorio_eficiencia_material()
+        csv_eficiencia_material = "data/relatorios/relatorio_eficiencia_material.csv"
+        if relatorios_material:
+            salvar_csv_material(relatorios_material, csv_eficiencia_material)
+            print(f"✅ Relatório de eficiência de material salvo em CSV: {csv_eficiencia_material}")
+        else:
+            print("⚠️ Nenhum dado disponível para gerar o relatório de eficiência de material.")
+        
+        # Gerar os gráficos a partir dos relatórios de eficiência
+        gerar_graficos_barras_tempo(csv_eficiencia_tempo)
+        gerar_graficos_pontos_tempo(csv_eficiencia_tempo)
+        gerar_graficos_pontos_material(csv_eficiencia_material)
+        gerar_graficos_barras_material(csv_eficiencia_material)
+        
     except Exception as e:
         print(f"❌ Erro durante a execução: {e}")
 
@@ -117,6 +136,6 @@ if __name__ == "__main__":
     
     # Deletar arquivos na pasta temporária após 24 horas
     deletar_arquivos_temp()
-
+    
     # Processar os áudios e gerar os relatórios
     main()

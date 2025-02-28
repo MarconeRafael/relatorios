@@ -5,7 +5,7 @@ import os
 import matplotlib.lines as mlines
 import numpy as np
 
-def gerar_graficos_barras(caminho_csv):
+def gerar_graficos_barras_tempo(caminho_csv):
     """Gera gráfico de barras com as colunas na ordem desejada e cores customizadas."""
     try:
         import os
@@ -59,7 +59,7 @@ def gerar_graficos_barras(caminho_csv):
 
 
 
-def gerar_graficos_pontos(caminho_csv):
+def gerar_graficos_pontos_tempo(caminho_csv):
     """Gera gráficos de linhas múltiplas a partir dos dados do CSV."""
     try:
         # Lê os dados do CSV
@@ -137,6 +137,7 @@ def gerar_graficos_pontos(caminho_csv):
         print(f"❌ Erro ao gerar gráficos: {e}")
 
 if __name__ == "__main__":
-    caminho_csv = 'data/relatorios/relatorio_eficiencia.csv'
-    gerar_graficos_barras(caminho_csv)
-    gerar_graficos_pontos(caminho_csv)
+    caminho_csv_tempo = 'data/relatorios/relatorio_eficiencia_tempo.csv'
+
+    gerar_graficos_barras_tempo(caminho_csv_tempo)
+    gerar_graficos_pontos_tempo(caminho_csv_tempo)

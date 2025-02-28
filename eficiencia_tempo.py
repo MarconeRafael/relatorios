@@ -6,7 +6,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
-def gerar_pdf(dados, caminho_pdf):
+def gerar_pdf_tempo(dados, caminho_pdf):
     """Gera um PDF a partir dos dados de eficiência."""
     try:
         # Cria um documento PDF
@@ -47,17 +47,18 @@ def gerar_pdf(dados, caminho_pdf):
         print(f"❌ Erro ao gerar o PDF: {e}")
 
 
-# Definindo os parâmetros de tempo esperado para cada tarefa
+# Definindo os parâmetros de tempo esperado para cada tarefa em minutos
 TABELA_TEMPO_ESPERADO = {
-    "Pintura Eletrostática": 1.2,
-    "Colagem de Cola Mel": 0.2,
-    "Corte de Isopor": 0.33,
-    "Colagem de Filme (Normal)": None,  # a definir
-    "Colagem de Filme (Ultra)": 0.5,
-    "Carregamento": 1
+    "Pintura Eletrostática": 72,          # 1.2 horas * 60 = 72 minutos
+    "Colagem de Cola Mel": 12,            # 0.2 horas * 60 = 12 minutos
+    "Corte de Isopor": 19.8,              # 0.33 horas * 60 ≈ 19.8 minutos
+    "Colagem de Filme (Normal)": 60,      # 1.0 hora * 60 = 60 minutos
+    "Colagem de Filme (Ultra)": 30,       # 0.5 hora * 60 = 30 minutos
+    "Carregamento": 60                  # 1 hora * 60 = 60 minutos
 }
 
-def calcular_eficiencia(caminho_csv):
+
+def calcular_eficiencia_tempo(caminho_csv):
     """Calcula a eficiência com base no arquivo CSV e na tabela de tempo esperado."""
     resultados = []
 
@@ -72,7 +73,7 @@ def calcular_eficiencia(caminho_csv):
             tempo_final = linha['Horário de Fim']
             print(f"\nProcessando tarefa: {tarefa}")  # Debug: mostra a tarefa sendo processada
             
-            tempo_gasto = calcular_tempo_gasto(tempo_inicial, tempo_final)
+            tempo_gasto = calcular_tempo_gasto_tempo(tempo_inicial, tempo_final)
             print(f"Tempo Gasto: {tempo_gasto} minutos")  # Debug: mostra tempo gasto
             
             if tarefa in TABELA_TEMPO_ESPERADO:
@@ -96,7 +97,7 @@ def calcular_eficiencia(caminho_csv):
 
     return resultados
 
-def salvar_csv(resultados, caminho_csv):
+def salvar_csv_tempo(resultados, caminho_csv):
     """Salva os resultados de eficiência em um arquivo CSV."""
     try:
         with open(caminho_csv, mode='w', newline='', encoding='utf-8') as file:
@@ -110,7 +111,7 @@ def salvar_csv(resultados, caminho_csv):
     except Exception as e:
         print(f"❌ Erro ao salvar o arquivo CSV: {e}")
 
-def formatar_horario(horario):
+def formatar_horario_tempo(horario):
     """Formata o horário para o formato 'YYYY-MM-DD HH:MM:SS'."""
     data_padrao = "2025-02-22"  # Data padrão, ajuste conforme necessário
     try:
@@ -131,10 +132,10 @@ def formatar_horario(horario):
         print(f"Erro ao formatar o horário: {horario}. {e}")
         return None  # Retorna None se houver erro
 
-def calcular_tempo_gasto(horario_inicio, horario_fim):
+def calcular_tempo_gasto_tempo(horario_inicio, horario_fim):
     """Calcula o tempo gasto entre dois horários formatados."""
-    inicio_formatado = formatar_horario(horario_inicio)
-    fim_formatado = formatar_horario(horario_fim)
+    inicio_formatado = formatar_horario_tempo(horario_inicio)
+    fim_formatado = formatar_horario_tempo(horario_fim)
 
     # Verifica se os horários foram formatados corretamente
     if not inicio_formatado:
@@ -163,23 +164,23 @@ def calcular_tempo_gasto(horario_inicio, horario_fim):
         print(f"Erro ao calcular o tempo gasto: {e}")
         return 0  # Retorna 0 se houver erro
 
-def gerar_relatorio_eficiencia():
+def gerar_relatorio_eficiencia_tempo():
     """Gera o relatório de eficiência e chama a função para gerar o PDF e salvar em CSV."""
     caminho_csv = "data/relatorios/relatorio_2025-02-24.csv"
     PDF_FILE = "data/relatorios/relatorio_eficiencia.pdf"
-    CSV_FILE = "data/relatorios/relatorio_eficiencia.csv"  # Novo caminho para o CSV
+    CSV_FILE = "data/relatorios/relatorio_eficiencia_tempo.csv"  # Novo caminho para o CSV
 
-    relatorios = calcular_eficiencia(caminho_csv)
+    relatorios = calcular_eficiencia_tempo(caminho_csv)
     print("Relatórios gerados:", relatorios)  # Debug: mostra os relatórios gerados
 
     if relatorios:
         try:
-            gerar_pdf(relatorios, PDF_FILE)
+            gerar_pdf_tempo(relatorios, PDF_FILE)
         except Exception as e:
             print(f"❌ Erro ao gerar o PDF: {e}")
-        salvar_csv(relatorios, CSV_FILE)  # Salva em CSV
+        salvar_csv_tempo(relatorios, CSV_FILE)  # Salva em CSV
     else:
         print("⚠️ Nenhum dado disponível para gerar o relatório de eficiência.")
 
 if __name__ == "__main__":
-    gerar_relatorio_eficiencia()
+    gerar_relatorio_eficiencia_tempo()
