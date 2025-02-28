@@ -10,26 +10,28 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 openai.api_key = chave_openai
 
 TABELA_MATERIAL_ESPERADO_POR_METRO_QUADRADO = {
-    "Colagem de Filme (Normal)": 40,  # Aplicação do Filme
-    "Corte de Isopor": 33,  # Corte do EPS (CNC – Corte Reto e Esquadro)
-    "Pintura Eletrostática": 40,  # Pintura Eletrostática
-    "Colagem de Cola Mel": 20,  # Montagem de Telhas
+    "Colagem de Filme (Normal)": {"Filme": 1.03, "Cola Una": 60},  # Aplicação do Filme
+    "Corte de Isopor": {},  # Corte do EPS (CNC – Corte Reto e Esquadro)
+    "Pintura Eletrostática": {"Pó para Pintura": 140},  # Pintura Eletrostática
+    "Colagem de Cola Mel": {"Cola Mel": 40},  # Montagem de Telhas
 }
-
 
 def extrair_info_material(tarefa_text, material_gasto_text):
     """
-    Utiliza a API do GPT para normalizar a tarefa e extrair o valor numérico do material gasto.
-    Retorna um tuple (tarefa_normalizada, material_usado) onde:
-      - tarefa_normalizada: string, possivelmente ajustada para corresponder a uma das chaves da tabela.
-      - material_usado: float com o valor extraído.
+    Utiliza a API do GPT para normalizar a tarefa e extrair:
+      - o nome da tarefa normalizada (deve ser uma das chaves da tabela),
+      - o nome do material específico (se aplicável),
+      - o valor numérico referente ao material gasto.
+    Retorna um tuple (tarefa_normalizada, material, material_usado).
     """
     prompt = (
         "Você é um assistente que extrai informações numéricas e normaliza nomes de tarefas. "
         "A partir dos dados a seguir, extraia e retorne um JSON com as seguintes chaves:\n"
         " - tarefa: a tarefa normalizada (deve ser uma das opções: "
         f"{', '.join(TABELA_MATERIAL_ESPERADO_POR_METRO_QUADRADO.keys())})\n"
-        " - material_usado: o valor numérico referente ao material gasto (em minutos ou unidade definida).\n\n"
+        " - material: o nome do material correspondente, se aplicável. Se a tarefa tiver mais de um material esperado, "
+        "escolha aquele que melhor corresponda ao valor numérico fornecido.\n"
+        " - material_usado: o valor numérico referente ao material gasto.\n\n"
         f"Tarefa: {tarefa_text}\n"
         f"Material Gasto: {material_gasto_text}\n\n"
         "Responda apenas com o JSON."
@@ -48,28 +50,31 @@ def extrair_info_material(tarefa_text, material_gasto_text):
         resposta_texto = response["choices"][0]["message"]["content"].strip()
         dados = json.loads(resposta_texto)
         tarefa_normalizada = dados.get("tarefa", tarefa_text)
+        material = dados.get("material", "")  # pode ser vazio se não aplicável
         material_usado = float(dados.get("material_usado", 0))
     except Exception as e:
         print(f"Erro ao extrair info via GPT: {e}")
         tarefa_normalizada = tarefa_text
+        material = ""
         try:
             material_usado = float(material_gasto_text)
         except Exception:
             material_usado = 0
-    return tarefa_normalizada, material_usado
+    return tarefa_normalizada, material, material_usado
 
 def gerar_pdf_material(dados, caminho_pdf):
     """Gera um PDF a partir dos dados de eficiência de material."""
     try:
         pdf = SimpleDocTemplate(caminho_pdf, pagesize=letter)
         # Cabeçalhos da tabela
-        cabecalhos = ["Etapa", "Material Usado", "Material Esperado", "Diferença de Material", "Status"]
+        cabecalhos = ["Etapa", "Material", "Material Usado", "Material Esperado", "Diferença de Material", "Status"]
         
         # Prepara os dados para a tabela
         dados_tabela = [cabecalhos]
         for item in dados:
             linha = [
                 item["Etapa"],
+                item["Material"],
                 item["Material Usado"],
                 item["Material Esperado"],
                 item["Diferença de Material"],
@@ -97,13 +102,14 @@ def gerar_pdf_material(dados, caminho_pdf):
 def calcular_eficiencia_material(caminho_csv):
     """
     Calcula a eficiência do material usado com base no arquivo CSV e na tabela de material esperado.
-    Utiliza a API do GPT para extrair e normalizar as informações de 'Tarefa' e 'Material Gasto'.
+    Utiliza a API do GPT para extrair e normalizar as informações de 'Tarefa' e 'Material Gasto',
+    identificando também o material específico, se aplicável.
     """
     resultados = []
 
     with open(caminho_csv, mode='r', encoding='utf-8') as file:
         reader = csv.DictReader(file)
-        print("Cabeçalhos do CSV:", reader.fieldnames)  # Debug: mostra os cabeçalhos do CSV
+        print("Cabeçalhos do CSV:", reader.fieldnames)
 
         for linha in reader:
             tarefa_text = linha.get('Tarefa')
@@ -111,13 +117,44 @@ def calcular_eficiencia_material(caminho_csv):
             print(f"\nProcessando tarefa: {tarefa_text}")
 
             # Extrai e normaliza informações usando a API do GPT
-            tarefa_normalizada, material_usado = extrair_info_material(tarefa_text, material_gasto_text)
-            print(f"Tarefa normalizada: {tarefa_normalizada}, Material Usado: {material_usado}")
+            tarefa_normalizada, material, material_usado = extrair_info_material(tarefa_text, material_gasto_text)
+            print(f"Tarefa normalizada: {tarefa_normalizada}, Material: {material}, Material Usado: {material_usado}")
 
             if tarefa_normalizada in TABELA_MATERIAL_ESPERADO_POR_METRO_QUADRADO:
-                material_esperado = TABELA_MATERIAL_ESPERADO_POR_METRO_QUADRADO[tarefa_normalizada]
-                diferenca_material = material_usado - material_esperado
-                status = "Verde" if diferenca_material <= 0 else "Vermelho"
+                esperado = TABELA_MATERIAL_ESPERADO_POR_METRO_QUADRADO[tarefa_normalizada]
+                if isinstance(esperado, dict):
+                    # Se o material extraído não corresponder exatamente, escolhe o cujo valor esperado seja
+                    # o mais próximo do valor utilizado
+                    if material in esperado:
+                        material_esperado = esperado[material]
+                    else:
+                        try:
+                            used_val = float(material_usado)
+                            best_key = None
+                            best_diff = None
+                            for key, val in esperado.items():
+                                diff = abs(used_val - val)
+                                if best_diff is None or diff < best_diff:
+                                    best_diff = diff
+                                    best_key = key
+                            if best_key is not None:
+                                material = best_key
+                                material_esperado = esperado[best_key]
+                            else:
+                                material_esperado = "(a definir)"
+                        except Exception:
+                            material_esperado = "(a definir)"
+                elif isinstance(esperado, (int, float)):
+                    material_esperado = esperado
+                else:
+                    material_esperado = "(a definir)"
+
+                if isinstance(material_esperado, (int, float)):
+                    diferenca_material = material_usado - material_esperado
+                    status = "Verde" if diferenca_material <= 0 else "Vermelho"
+                else:
+                    diferenca_material = "(a definir)"
+                    status = "(Verde/Vermelho)"
             else:
                 material_esperado = "(a definir)"
                 diferenca_material = "(a definir)"
@@ -125,6 +162,7 @@ def calcular_eficiencia_material(caminho_csv):
             
             resultados.append({
                 "Etapa": tarefa_normalizada,
+                "Material": material,
                 "Material Usado": material_usado,
                 "Material Esperado": material_esperado,
                 "Diferença de Material": diferenca_material,
@@ -160,7 +198,7 @@ def gerar_relatorio_eficiencia_material(caminho_csv):
     CSV_FILE = "data/relatorios/relatorio_eficiencia_material.csv"
 
     relatorios = calcular_eficiencia_material(caminho_csv)
-    print("Relatórios gerados:", relatorios)  # Debug: mostra os relatórios gerados
+    print("Relatórios gerados:", relatorios)
 
     if relatorios:
         try:
@@ -172,6 +210,5 @@ def gerar_relatorio_eficiencia_material(caminho_csv):
         print("⚠️ Nenhum dado disponível para gerar o relatório de eficiência de material.")
 
 if __name__ == "__main__":
-    caminho_csv = "data/relatorios/relatorio_2025-02-24.csv" 
-
+    caminho_csv = "data/relatorios/relatorio_2025-02-28.csv" 
     gerar_relatorio_eficiencia_material(caminho_csv)
