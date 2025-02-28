@@ -49,6 +49,7 @@ def gerar_pdf_tempo(dados, caminho_pdf):
 
 # Definindo os parâmetros de tempo esperado para cada tarefa em minutos
 TABELA_TEMPO_ESPERADO = {
+    "de construção do relatório": 60,
     "Pintura Eletrostática": 72,          # 1.2 horas * 60 = 72 minutos
     "Colagem de Cola Mel": 12,            # 0.2 horas * 60 = 12 minutos
     "Corte de Isopor": 19.8,              # 0.33 horas * 60 ≈ 19.8 minutos
@@ -164,9 +165,9 @@ def calcular_tempo_gasto_tempo(horario_inicio, horario_fim):
         print(f"Erro ao calcular o tempo gasto: {e}")
         return 0  # Retorna 0 se houver erro
 
-def gerar_relatorio_eficiencia_tempo():
+def gerar_relatorio_eficiencia_tempo(caminho_csv):
     """Gera o relatório de eficiência e chama a função para gerar o PDF e salvar em CSV."""
-    caminho_csv = "data/relatorios/relatorio_2025-02-24.csv"
+    caminho_csv = caminho_csv
     PDF_FILE = "data/relatorios/relatorio_eficiencia.pdf"
     CSV_FILE = "data/relatorios/relatorio_eficiencia_tempo.csv"  # Novo caminho para o CSV
 
@@ -183,4 +184,5 @@ def gerar_relatorio_eficiencia_tempo():
         print("⚠️ Nenhum dado disponível para gerar o relatório de eficiência.")
 
 if __name__ == "__main__":
-    gerar_relatorio_eficiencia_tempo()
+    caminho_csv = "data/relatorios/relatorio_2025-02-24.csv"
+    gerar_relatorio_eficiencia_tempo(caminho_csv)

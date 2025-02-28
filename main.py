@@ -102,7 +102,7 @@ def main():
             print("⚠️ Nenhum dado disponível para gerar o relatório completo.")
         
         # Geração do relatório de eficiência de tempo
-        relatorios_tempo = gerar_relatorio_eficiencia_tempo()
+        relatorios_tempo = gerar_relatorio_eficiencia_tempo(csv_principal)
         csv_eficiencia_tempo = "data/relatorios/relatorio_eficiencia_tempo.csv"
         if relatorios_tempo:
             salvar_csv_tempo(relatorios_tempo, csv_eficiencia_tempo)
@@ -110,8 +110,10 @@ def main():
         else:
             print("⚠️ Nenhum dado disponível para gerar o relatório de eficiência de tempo.")
         
+
+        
         # Geração do relatório de eficiência de material
-        relatorios_material = gerar_relatorio_eficiencia_material()
+        relatorios_material = gerar_relatorio_eficiencia_material(csv_principal)
         csv_eficiencia_material = "data/relatorios/relatorio_eficiencia_material.csv"
         if relatorios_material:
             salvar_csv_material(relatorios_material, csv_eficiencia_material)

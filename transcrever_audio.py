@@ -13,8 +13,8 @@ def transcrever_audio(audio_ogg):
         print(f"Arquivo {audio_ogg} não encontrado!")
         return
     
-    # Converter OGG para WAV usando FFmpeg
-    subprocess.run(["ffmpeg", "-i", audio_ogg, "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le", audio_wav], check=True)
+    # Converter OGG para WAV usando FFmpeg e sobrescrever automaticamente, se necessário
+    subprocess.run(["ffmpeg", "-y", "-i", audio_ogg, "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le", audio_wav], check=True)
     
     if not os.path.exists(audio_wav):
         print(f"Erro na conversão! Arquivo {audio_wav} não foi gerado.")

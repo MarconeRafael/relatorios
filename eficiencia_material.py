@@ -149,7 +149,7 @@ def salvar_csv_material(resultados, caminho_csv):
     except Exception as e:
         print(f"❌ Erro ao salvar o arquivo CSV: {e}")
 
-def gerar_relatorio_eficiencia_material():
+def gerar_relatorio_eficiencia_material(caminho_csv):
     """
     Gera o relatório de eficiência de material:
       - Lê o CSV com as colunas: Horário de Início, Tarefa, Nome do Cliente, Horário de Fim, Material Gasto.
@@ -157,7 +157,7 @@ def gerar_relatorio_eficiencia_material():
         comparando o valor extraído com o valor esperado (da tabela de referência).
       - Gera um relatório (em PDF e CSV) com os resultados.
     """
-    caminho_csv = "data/relatorios/relatorio_2025-02-24.csv"  
+      
     PDF_FILE = "data/relatorios/relatorio_eficiencia_material.pdf"
     CSV_FILE = "data/relatorios/relatorio_eficiencia_material.csv"
 
@@ -174,4 +174,6 @@ def gerar_relatorio_eficiencia_material():
         print("⚠️ Nenhum dado disponível para gerar o relatório de eficiência de material.")
 
 if __name__ == "__main__":
-    gerar_relatorio_eficiencia_material()
+    caminho_csv = "data/relatorios/relatorio_2025-02-24.csv" 
+
+    gerar_relatorio_eficiencia_material(caminho_csv)
