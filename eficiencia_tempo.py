@@ -48,15 +48,15 @@ def gerar_pdf_tempo(dados, caminho_pdf):
 
 
 # Definindo os parâmetros de tempo esperado para cada tarefa em minutos
+# Definindo os parâmetros de tempo esperado para cada tarefa em minutos
 TABELA_TEMPO_ESPERADO = {
-    "de construção do relatório": 60,
-    "Pintura Eletrostática": 72,          # 1.2 horas * 60 = 72 minutos
-    "Colagem de Cola Mel": 12,            # 0.2 horas * 60 = 12 minutos
-    "Corte de Isopor": 19.8,              # 0.33 horas * 60 ≈ 19.8 minutos
-    "Colagem de Filme (Normal)": 60,      # 1.0 hora * 60 = 60 minutos
-    "Colagem de Filme (Ultra)": 30,       # 0.5 hora * 60 = 30 minutos
-    "Carregamento": 60                  # 1 hora * 60 = 60 minutos
+    "Aplicação do Filme": 0.3,                     # 18 segundos / 60 = 0.3 minutos
+    "Corte do EPS (CNC – Corte Reto)": 5,          # 300 segundos / 60 = 5 minutos
+    "Corte do EPS (CNC – Corte com Esquadro)": 8.75, # 525 segundos / 60 = 8.75 minutos
+    "Pintura Eletrostática": 1.2,                  # 72 segundos / 60 = 1.2 minutos
+    "Montagem de Telhas": 0.8                      # 48 segundos / 60 = 0.8 minutos
 }
+
 
 
 def calcular_eficiencia_tempo(caminho_csv):

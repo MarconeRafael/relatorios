@@ -9,15 +9,13 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 # Configuração da API
 openai.api_key = chave_openai
 
-# Tabela de material esperado para cada tarefa (valor em minutos ou unidade definida)
 TABELA_MATERIAL_ESPERADO_POR_METRO_QUADRADO = {
-    "Pintura Eletrostática": 40,
-    "Colagem de Cola Mel": 20,
-    "Corte de Isopor": 33,
-    "Colagem de Filme (Normal)": 40,
-    "Colagem de Filme (Ultra)": 50,
-    "Carregamento": 5
+    "Colagem de Filme (Normal)": 40,  # Aplicação do Filme
+    "Corte de Isopor": 33,  # Corte do EPS (CNC – Corte Reto e Esquadro)
+    "Pintura Eletrostática": 40,  # Pintura Eletrostática
+    "Colagem de Cola Mel": 20,  # Montagem de Telhas
 }
+
 
 def extrair_info_material(tarefa_text, material_gasto_text):
     """
