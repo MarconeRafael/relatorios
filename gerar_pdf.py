@@ -25,7 +25,7 @@ def gerar_pdf(relatorios, pdf_file):
     Gera um PDF com base nos dados extraídos do arquivo CSV.
     """
     try:
-        # Cria o PDF com o formato A4
+        # Cria o PDF com o formato Letter (padrão horizontal)
         doc = SimpleDocTemplate(pdf_file, pagesize=letter)
         elementos = []
 
@@ -48,27 +48,33 @@ def gerar_pdf(relatorios, pdf_file):
         style_normal.leading = 12
         style_normal.alignment = 1  # 0=Esquerda, 1=Centro, 2=Direita
 
-        # Cabeçalho da Tabela
+        # Cabeçalho da Tabela com 6 colunas
         tabela_dados = [[
             Paragraph("Horário de Início", style_normal),
             Paragraph("Tarefa", style_normal),
             Paragraph("Nome do Cliente", style_normal),
             Paragraph("Horário de Fim", style_normal),
-            Paragraph("Material Gasto", style_normal)
+            Paragraph("Material Gasto", style_normal),
+            Paragraph("Metros Quadrados", style_normal)
         ]]
 
         # Adiciona os dados do CSV
         for relatorio in relatorios:
             tabela_dados.append([
-                Paragraph(relatorio["Horário de Início"], style_normal),
-                Paragraph(relatorio["Tarefa"], style_normal),
-                Paragraph(relatorio["Nome do Cliente"], style_normal),
-                Paragraph(relatorio["Horário de Fim"], style_normal),
-                Paragraph(relatorio["Material Gasto"], style_normal)
+                Paragraph(relatorio.get("Horário de Início", ""), style_normal),
+                Paragraph(relatorio.get("Tarefa", ""), style_normal),
+                Paragraph(relatorio.get("Nome do Cliente", ""), style_normal),
+                Paragraph(relatorio.get("Horário de Fim", ""), style_normal),
+                Paragraph(relatorio.get("Material Gasto", ""), style_normal),
+                Paragraph(relatorio.get("Metros Quadrados", ""), style_normal)
             ])
 
+        # Definição das larguras das colunas para manter o limite horizontal
+        # A soma dos valores deve ser compatível com a largura da página
+        col_widths = [80, 100, 150, 80, 100, 100]  # Total = 610 (aprox.)
+
         # Criação da Tabela
-        tabela = Table(tabela_dados, colWidths=[100, 100, 150, 100, 150])  # Ajuste das larguras das colunas
+        tabela = Table(tabela_dados, colWidths=col_widths)
         tabela.setStyle(TableStyle([
             ('TEXTCOLOR', (0, 0), (-1, 0), (0, 0, 0)),  # Cabeçalho em preto
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Alinhamento centralizado
@@ -81,7 +87,7 @@ def gerar_pdf(relatorios, pdf_file):
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),  # Alinhamento vertical no topo
             ('LEFTPADDING', (0, 0), (-1, -1), 4),  # Espaço interno esquerdo
             ('RIGHTPADDING', (0, 0), (-1, -1), 4),  # Espaço interno direito
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [0xFFFFFF, 0xf2f2f2]),  # Zebrado opcional
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [0xFFFFFF, 0xf2f2f2]),  # Linhas alternadas
         ]))
 
         # Adiciona a tabela ao documento
@@ -99,8 +105,8 @@ def main():
     """
     Função principal para gerar o relatório completo em PDF a partir do arquivo CSV.
     """
-    caminho_csv = "data/relatorios/relatorio_2025-02-22.csv"  # Substitua pelo caminho do seu CSV
-    pdf_file = "data/relatorios/relatorio_completo.pdf"  # Substitua pelo caminho do PDF desejado
+    caminho_csv = "data/relatorios/relatorio_2025-02-22.csv"  # Atualize para o caminho do seu CSV
+    pdf_file = "data/relatorios/relatorio_completo.pdf"  # Atualize para o caminho do PDF desejado
 
     relatorios = ler_csv(caminho_csv)
     if relatorios:

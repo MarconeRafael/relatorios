@@ -20,7 +20,7 @@ CSV_FILE = gerar_nome_relatorio()
 if not os.path.exists(CSV_FILE):
     with open(CSV_FILE, mode="w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow(["Horário de Início", "Tarefa", "Nome do Cliente", "Horário de Fim", "Material Gasto"])
+        writer.writerow(["Horário de Início", "Tarefa", "Nome do Cliente", "Horário de Fim", "Material Gasto", "Metros Quadrados"])
 
 def organiza_inicio(texto):
     """
@@ -61,7 +61,7 @@ def organiza_inicio(texto):
         # Salva os dados no CSV com as colunas "Horário de Fim" e "Material Gasto" vazias
         with open(CSV_FILE, mode="a", newline="", encoding="utf-8") as file:
             writer = csv.writer(file)
-            writer.writerow([dados["Horário de Início"], dados["Tarefa"], dados["Nome do Cliente"], "", ""])  
+            writer.writerow([dados["Horário de Início"], dados["Tarefa"], dados["Nome do Cliente"], "", "", ""])  
         
         return resposta_texto  # Retorna o texto formatado para conferência
     

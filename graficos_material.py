@@ -5,6 +5,8 @@ import matplotlib.lines as mlines
 import numpy as np
 
 def gerar_graficos_barras_material(caminho_csv):
+    caminho_csv =  caminho_csv
+
     """Gera gráfico de barras usando Material Esperado, Material Usado, Diferença de Material e anota Status."""
     try:
         # Lê os dados do CSV
@@ -58,6 +60,7 @@ def gerar_graficos_barras_material(caminho_csv):
 
 
 def gerar_graficos_pontos_material(caminho_csv):
+    caminho_csv =  caminho_csv
     """Gera gráficos de linhas múltiplas para Material Esperado, Material Usado e Diferença de Material."""
     try:
         # Lê os dados do CSV

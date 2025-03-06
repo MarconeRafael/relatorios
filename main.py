@@ -69,8 +69,10 @@ def main():
         print(f"📂 Processando o arquivo final: {path_final}")
 
         # Transcrever os áudios
-        texto_inicial = transcrever_audio(path_inicio)
-        texto_final = transcrever_audio(path_final)
+        #texto_inicial = transcrever_audio(path_inicio)
+#        texto_final = transcrever_audio(path_final)
+        texto_inicial = "Às 8 horas, início da tarefa montagem de Telhas do cliente Anderson"
+        texto_final = "Tarefa de início da tarefa montagem de Telhas do cliente Anderson. foram feitos 60 metros, foi gasto 6 e terminou na hora 9 e 35"
         
         if not texto_inicial:
             print("⚠️ Nenhum texto foi transcrito do áudio de início.")
@@ -92,7 +94,7 @@ def main():
         data_atual = datetime.now().strftime("%Y-%m-%d")
         csv_principal = f"data/relatorios/relatorio_{data_atual}.csv"
         pdf_principal = f"data/relatorios/relatorio_completo_{data_atual}.pdf"
-        
+        print(f"\n\n\n\csv_principal:\n{csv_principal}\n\n\n")
         # Gerar o relatório completo em PDF a partir do CSV principal
         relatorios_completos = ler_csv(csv_principal)
         if relatorios_completos:
@@ -102,24 +104,29 @@ def main():
             print("⚠️ Nenhum dado disponível para gerar o relatório completo.")
         
         # Geração do relatório de eficiência de tempo
+        print("ENtrando em eficiencia de tempo")
         relatorios_tempo = gerar_relatorio_eficiencia_tempo(csv_principal)
         csv_eficiencia_tempo = "data/relatorios/relatorio_eficiencia_tempo.csv"
+        """
         if relatorios_tempo:
             salvar_csv_tempo(relatorios_tempo, csv_eficiencia_tempo)
             print(f"✅ Relatório de eficiência de tempo salvo em CSV: {csv_eficiencia_tempo}")
         else:
             print("⚠️ Nenhum dado disponível para gerar o relatório de eficiência de tempo.")
+        """
+        print("Saindo de eficiencia de tempo")
         
-
         
         # Geração do relatório de eficiência de material
         relatorios_material = gerar_relatorio_eficiencia_material(csv_principal)
         csv_eficiencia_material = "data/relatorios/relatorio_eficiencia_material.csv"
+        """
         if relatorios_material:
             salvar_csv_material(relatorios_material, csv_eficiencia_material)
             print(f"✅ Relatório de eficiência de material salvo em CSV: {csv_eficiencia_material}")
         else:
             print("⚠️ Nenhum dado disponível para gerar o relatório de eficiência de material.")
+        """
         
         # Gerar os gráficos a partir dos relatórios de eficiência
         gerar_graficos_barras_tempo(csv_eficiencia_tempo)

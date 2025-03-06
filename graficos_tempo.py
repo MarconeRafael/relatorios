@@ -6,6 +6,8 @@ import matplotlib.lines as mlines
 import numpy as np
 
 def gerar_graficos_barras_tempo(caminho_csv):
+    caminho_csv =  caminho_csv
+
     """Gera gráfico de barras com as colunas na ordem desejada e cores customizadas."""
     try:
         import os
@@ -60,6 +62,8 @@ def gerar_graficos_barras_tempo(caminho_csv):
 
 
 def gerar_graficos_pontos_tempo(caminho_csv):
+    caminho_csv =  caminho_csv
+
     """Gera gráficos de linhas múltiplas a partir dos dados do CSV."""
     try:
         # Lê os dados do CSV
