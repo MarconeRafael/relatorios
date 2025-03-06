@@ -1,6 +1,3 @@
-// Exemplo básico usando a API MediaRecorder para gravar áudio no navegador.
-// OBS: A implementação pode variar conforme a necessidade e compatibilidade dos navegadores.
-
 let mediaRecorder;
 let recordedChunks = [];
 
@@ -49,9 +46,9 @@ function enviarAudio(blob) {
     })
     .then(response => response.json())
     .then(data => {
-        if(data.transcricao) {
+        if (data.transcricao) {
             document.getElementById('textoTranscricao').innerText = data.transcricao;
-        } else if(data.error) {
+        } else if (data.error) {
             document.getElementById('textoTranscricao').innerText = "Erro: " + data.error;
         }
     })

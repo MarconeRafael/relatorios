@@ -18,14 +18,14 @@ def index():
 @app.route("/processar_audio", methods=["POST"])
 def processar_audio():
     try:
-        # Supondo que o áudio seja enviado via form-data como "audio_data"
         if "audio_data" not in request.files:
             return jsonify({"error": "Nenhum arquivo de áudio enviado."}), 400
 
         audio_file = request.files["audio_data"]
 
         # Salvar o arquivo temporariamente para processamento
-        temp_audio_path = os.path.join("data", "temp_audio", audio_file.filename)
+        temp_audio_path = os.path.join("data", "audios", audio_file.filename)
+        os.makedirs(os.path.dirname(temp_audio_path), exist_ok=True)
         audio_file.save(temp_audio_path)
 
         # Chama a função de transcrição (adaptar se necessário)
@@ -39,16 +39,13 @@ def processar_audio():
 # Tela de Relatórios
 @app.route("/relatorios")
 def relatorios():
-    # Aqui você pode chamar funções do main.py ou apenas exibir resultados já gerados
-    # Exemplo: retornar o caminho do relatório PDF gerado
     data_atual = "2025-02-22"  # Substitua por lógica dinâmica se necessário
     pdf_path = f"data/relatorios/relatorio_completo_{data_atual}.pdf"
-    
-    # Lista dos arquivos de relatório a serem disponibilizados
+
     relatorio_pdf = "relatorio_completo_2025-03-05.pdf"
     relatorio_eficiencia_csv = "relatorio_eficiencia_material.csv"
     relatorio_eficiencia_pdf = "relatorio_eficiencia.pdf"
-    
+
     return render_template("relatorios.html", 
                            pdf_path=pdf_path,
                            relatorio_pdf=relatorio_pdf,
@@ -58,7 +55,6 @@ def relatorios():
 # Tela de Gráficos
 @app.route("/graficos")
 def graficos():
-    # Exemplo: passar os nomes dos gráficos para o template
     return render_template("graficos.html")
 
 # Rota para servir os gráficos diretamente

@@ -69,10 +69,11 @@ def main():
         print(f"📂 Processando o arquivo final: {path_final}")
 
         # Transcrever os áudios
-        #texto_inicial = transcrever_audio(path_inicio)
-#        texto_final = transcrever_audio(path_final)
-        texto_inicial = "Às 8 horas, início da tarefa montagem de Telhas do cliente Anderson"
-        texto_final = "Tarefa de início da tarefa montagem de Telhas do cliente Anderson. foram feitos 60 metros, foi gasto 6 e terminou na hora 9 e 35"
+        texto_inicial = transcrever_audio(path_inicio)
+        texto_final = transcrever_audio(path_final)
+
+        #texto_inicial = "Às 8 horas, início da tarefa montagem de Telhas do cliente Anderson"
+        #texto_final = "Tarefa de início da tarefa montagem de Telhas do cliente Anderson. foram feitos 60 metros, foi gasto 6 e terminou na hora 9 e 35"
         
         if not texto_inicial:
             print("⚠️ Nenhum texto foi transcrito do áudio de início.")

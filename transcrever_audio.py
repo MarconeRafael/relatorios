@@ -3,27 +3,44 @@ import subprocess
 import os
 from keys import chave_openai
 
-def transcrever_audio(audio_ogg):
-    """Converte um arquivo de áudio OGG para WAV e transcreve o áudio usando a API da OpenAI."""
+def transcrever_audio(audio_webm):
+    """Converte um arquivo de áudio WEBM para WAV e transcreve o áudio usando a API da OpenAI."""
     openai.api_key = chave_openai  # Substitua pela sua chave real
     
-    audio_wav = audio_ogg.replace(".ogg", ".wav")
+    if not os.path.exists(audio_webm):
+        print(f"Arquivo {audio_webm} não encontrado!")
+        return None
     
-    if not os.path.exists(audio_ogg):
-        print(f"Arquivo {audio_ogg} não encontrado!")
-        return
+    audio_wav = audio_webm.replace(".webm", ".wav")
     
-    # Converter OGG para WAV usando FFmpeg e sobrescrever automaticamente, se necessário
-    subprocess.run(["ffmpeg", "-y", "-i", audio_ogg, "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le", audio_wav], check=True)
+    try:
+        # Converter WEBM para WAV usando FFmpeg
+        subprocess.run([
+            "ffmpeg", "-y", "-i", audio_webm, "-ar", "16000", "-ac", "1", "-c:a", "pcm_s16le", audio_wav
+        ], check=True, stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError as e:
+        print(f"Erro ao converter áudio: {e}")
+        return None
     
     if not os.path.exists(audio_wav):
         print(f"Erro na conversão! Arquivo {audio_wav} não foi gerado.")
-        return
+        return None
     
-    # Transcrever o áudio WAV para texto utilizando a API da OpenAI (Whisper)
-    with open(audio_wav, "rb") as audio_file:
-        transcription = openai.Audio.transcribe("whisper-1", audio_file)
-    
-    transcricao_texto = transcription["text"]
-    print(f"Transcrição: {transcricao_texto}")
-    return transcricao_texto
+    try:
+        # Transcrever o áudio WAV para texto utilizando a API da OpenAI (Whisper)
+        with open(audio_wav, "rb") as audio_file:
+            transcription = openai.Audio.transcribe("whisper-1", audio_file)
+        
+        # Exibir resposta completa para depuração
+        print("Resposta completa da API:", transcription)
+        
+        transcricao_texto = transcription.get("text", "")
+        if not transcricao_texto:
+            print("Erro: A transcrição não retornou texto.")
+            return None
+        
+        print(f"Transcrição: {transcricao_texto}")
+        return transcricao_texto
+    except Exception as e:
+        print(f"Erro na transcrição: {e}")
+        return None

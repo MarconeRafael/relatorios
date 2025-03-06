@@ -2,24 +2,16 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gráficos Comparativos</title>
+    <!-- Inclusão do Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Seu CSS personalizado (se necessário) -->
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
             text-align: center;
-        }
-        .btn {
-            padding: 10px 20px;
-            margin: 5px;
-            background-color: #28a745;
-            color: #FFF;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .btn:hover {
-            background-color: #218838;
         }
         .graph-container {
             margin-top: 20px;
@@ -33,32 +25,39 @@
     </style>
 </head>
 <body>
-    <h1>Gráficos Comparativos</h1>
-    
-    <!-- Botões para selecionar os gráficos -->
-    <div id="button-container">
-        <button class="btn" onclick="mostrarGrafico('comparacao_material_multiplas_linhas.png')">
-            Material - Múltiplas Linhas
-        </button>
-        <button class="btn" onclick="mostrarGrafico('comparacao_material.png')">
-            Material
-        </button>
-        <button class="btn" onclick="mostrarGrafico('comparacao_tempos_multiplas_linhas.png')">
-            Tempos - Múltiplas Linhas
-        </button>
-        <button class="btn" onclick="mostrarGrafico('comparacao_tempos.png')">
-            Tempos
-        </button>
+    <div class="container mt-4">
+        <h1>Gráficos Comparativos</h1>
+        
+        <!-- Botões para selecionar os gráficos -->
+        <div id="button-container" class="mt-4">
+            <button class="btn btn-success m-2" onclick="mostrarGrafico('comparacao_material_multiplas_linhas.png')">
+                Material - Múltiplas Linhas
+            </button>
+            <button class="btn btn-success m-2" onclick="mostrarGrafico('comparacao_material.png')">
+                Material
+            </button>
+            <button class="btn btn-success m-2" onclick="mostrarGrafico('comparacao_tempos_multiplas_linhas.png')">
+                Tempos - Múltiplas Linhas
+            </button>
+            <button class="btn btn-success m-2" onclick="mostrarGrafico('comparacao_tempos.png')">
+                Tempos
+            </button>
+        </div>
+        
+        <!-- Container para exibição do gráfico -->
+        <div class="graph-container mt-4">
+            <!-- Por padrão, exibe o primeiro gráfico -->
+            <img id="grafico" src="{{ url_for('serve_graphics', filename='comparacao_material_multiplas_linhas.png') }}" alt="Gráfico Comparativo">
+        </div>
+        
+        <br>
+        <!-- Botão para voltar -->
+        <a href="{{ url_for('index') }}" class="btn btn-primary mt-4">Voltar</a>
     </div>
-    
-    <!-- Container para exibição do gráfico -->
-    <div class="graph-container">
-        <!-- Por padrão, exibe o primeiro gráfico -->
-        <img id="grafico" src="{{ url_for('serve_graphics', filename='comparacao_material_multiplas_linhas.png') }}" alt="Gráfico Comparativo">
-    </div>
-    
-    <br>
-    <a href="{{ url_for('index') }}"><button class="btn">Voltar</button></a>
+
+    <!-- Inclusão do Bootstrap JS e dependências -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     
     <script>
         // Função que atualiza a imagem exibida conforme o botão clicado
