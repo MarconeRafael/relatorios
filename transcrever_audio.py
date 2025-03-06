@@ -4,7 +4,7 @@ import os
 from keys import chave_openai
 
 def transcrever_audio(audio_webm):
-    """Converte um arquivo de áudio WEBM para WAV e transcreve o áudio usando a API da OpenAI."""
+    """Converte um arquivo de áudio WEBM para WAV e transcreve o áudio usando a API da OpenAI, sempre em português."""
     openai.api_key = chave_openai  # Substitua pela sua chave real
     
     if not os.path.exists(audio_webm):
@@ -27,9 +27,9 @@ def transcrever_audio(audio_webm):
         return None
     
     try:
-        # Transcrever o áudio WAV para texto utilizando a API da OpenAI (Whisper)
+        # Transcrever o áudio WAV para texto utilizando a API da OpenAI (Whisper) sempre em português
         with open(audio_wav, "rb") as audio_file:
-            transcription = openai.Audio.transcribe("whisper-1", audio_file)
+            transcription = openai.Audio.transcribe("whisper-1", audio_file, language="pt")
         
         # Exibir resposta completa para depuração
         print("Resposta completa da API:", transcription)
