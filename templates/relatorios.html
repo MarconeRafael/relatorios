@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatórios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #28a745;
+            color: #FFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            width: 250px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            margin: 10px auto;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+        .report-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Relatórios Disponíveis</h1>
+    
+    <!-- Botões que são também links -->
+    <div id="button-container">
+        <a id="relatorio-completo" class="btn" href="{{ url_for('serve_report', filename='relatorio_completo_2025-03-05.pdf') }}" target="_blank">
+            Relatório Completo - 2025-03-05
+        </a>
+        <a id="relatorio-eficiencia-material" class="btn" href="{{ url_for('serve_report', filename='relatorio_eficiencia_material.csv') }}" target="_blank">
+            Relatório de Eficiência Material
+        </a>
+        <a id="relatorio-eficiencia-tempo" class="btn" href="{{ url_for('serve_report', filename='relatorio_eficiencia.pdf') }}" target="_blank">
+            Relatório de Eficiência de Tempo
+        </a>
+    </div>
+
+    <br>
+    <a href="{{ url_for('index') }}"><button class="btn">Voltar</button></a>
+
+</body>
+</html>

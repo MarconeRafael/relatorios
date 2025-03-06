@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gravação e Transcrição</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Gravar Áudio para Relatórios</h1>
+    
+    <!-- Botão verde grande para gravar -->
+    <button id="btnGravar" class="btn-grande">Gravar</button>
+    
+    <!-- Área para exibir a transcrição -->
+    <div id="transcricao">
+        <h2>Transcrição:</h2>
+        <p id="textoTranscricao">Nenhuma transcrição disponível.</p>
+    </div>
+    
+    <!-- Botões para navegar para Relatórios e Gráficos -->
+    <div id="navegacao">
+        <a href="{{ url_for('relatorios') }}"><button class="btn">Ver Relatórios</button></a>
+        <a href="{{ url_for('graficos') }}"><button class="btn">Ver Gráficos</button></a>
+    </div>
+    
+    <script src="{{ url_for('static', filename='recorder.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gráficos Comparativos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #28a745;
+            color: #FFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #218838;
+        }
+        .graph-container {
+            margin-top: 20px;
+        }
+        img {
+            max-width: 90%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gráficos Comparativos</h1>
+    
+    <!-- Botões para selecionar os gráficos -->
+    <div id="button-container">
+        <button class="btn" onclick="mostrarGrafico('comparacao_material_multiplas_linhas.png')">
+            Material - Múltiplas Linhas
+        </button>
+        <button class="btn" onclick="mostrarGrafico('comparacao_material.png')">
+            Material
+        </button>
+        <button class="btn" onclick="mostrarGrafico('comparacao_tempos_multiplas_linhas.png')">
+            Tempos - Múltiplas Linhas
+        </button>
+        <button class="btn" onclick="mostrarGrafico('comparacao_tempos.png')">
+            Tempos
+        </button>
+    </div>
+    
+    <!-- Container para exibição do gráfico -->
+    <div class="graph-container">
+        <!-- Por padrão, exibe o primeiro gráfico -->
+        <img id="grafico" src="{{ url_for('serve_graphics', filename='comparacao_material_multiplas_linhas.png') }}" alt="Gráfico Comparativo">
+    </div>
+    
+    <br>
+    <a href="{{ url_for('index') }}"><button class="btn">Voltar</button></a>
+    
+    <script>
+        // Função que atualiza a imagem exibida conforme o botão clicado
+        function mostrarGrafico(nomeGrafico) {
+            document.getElementById('grafico').src = "{{ url_for('serve_graphics', filename='') }}" + nomeGrafico;
+        }
+    </script>
+</body>
+</html>
