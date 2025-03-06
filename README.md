@@ -1,89 +1,103 @@
 # Relatórios Automáticos com OpenAI e Transcrição de Áudio
 
-Este projeto utiliza a API da OpenAI para transcrever áudios e gerar relatórios organizados automaticamente. O áudio é processado e convertido em um relatório estruturado, que é salvo em um arquivo CSV. Além disso, ele calcula a eficiência das tarefas realizadas e gera gráficos com base nos dados coletados.
+Este projeto utiliza a API da OpenAI para transcrever áudios e gerar relatórios organizados automaticamente. Inclui uma interface web para upload de áudios, visualização de gráficos e geração de relatórios em PDF.
 
 ## 📂 Estrutura do Diretório
 
-O projeto está organizado da seguinte maneira:
-
 ```
 relatorios/
-│── data/                  # Diretório para armazenar arquivos de áudio e relatórios
-│   ├── WhatsApp Ptt 2025-02-22 at 08.54.35.ogg  # Exemplo de áudio
-│   ├── relatorios.csv     # Arquivo onde os relatórios de eficiência são armazenados
-│   ├── relatorio_eficiencia.csv  # Relatório de eficiência detalhado
-│── ├── relatorio_eficiencia.pdf  # PDF do relatório de eficiência
-│── ├── keys.py            # Arquivo contendo a chave da API OpenAI
-│── ├── LICENSE            # Licença do projeto
-│── ├── inicio.py          # Código para organizar e salvar o relatório
-│── ├── transcrever_audio.py   # Código para transcrever o áudio
-│── ├── eficiencia.py      # Código para calcular a eficiência e gerar PDFs/CSV
-│── ├── graficos.py        # Código para gerar gráficos com os dados de eficiência
-│── ├── README.md          # Este arquivo
-│── ├── __pycache__/       # Cache de compilação do Python
-│── ├── venv/              # Ambiente virtual para dependências
+├── app.py                  # Aplicação Flask principal
+├── main.py                 # Ponto de entrada alternativo
+├── data/
+│   ├── audios/            # Áudios enviados pelos usuários
+│   ├── graficos/          # Gráficos gerados automaticamente
+│   └── relatorios/        # Relatórios em CSV e PDF
+├── eficiencia_material.py # Cálculos de eficiência de materiais
+├── eficiencia_tempo.py    # Cálculos de eficiência temporal
+├── gerar_pdf.py           # Geração de PDFs a partir dos dados
+├── graficos_material.py   # Geração de gráficos de materiais
+├── graficos_tempo.py      # Geração de gráficos temporais
+├── inicio.py              # Processamento inicial de relatórios
+├── transcrever_audio.py   # Transcrição de áudio usando OpenAI
+├── static/
+│   ├── recorder.js        # Script para gravação de áudio
+│   └── style.css          # Estilos da interface web
+├── templates/
+│   ├── graficos.html      # Página de visualização de gráficos
+│   ├── index.html         # Página principal com upload de áudio
+│   └── relatorios.html    # Página de relatórios gerados
+├── keys.py                # Configuração da chave da API OpenAI
+├── LICENSE                # Licença Apache 2.0
+└── README.md              # Documentação do projeto
 ```
 
 ## 🚀 Como Usar
 
-### 1️⃣ **Instalar as Dependências**
-Antes de começar, ative o ambiente virtual e instale as bibliotecas necessárias:
-
+### 1️⃣ **Configuração Inicial**
 ```bash
-source venv/bin/activate  # Ativar o ambiente virtual (Linux/macOS)
-pip install openai pydub matplotlib seaborn  # Instalar as dependências necessárias
+# Clonar repositório e instalar dependências
+python -m venv venv
+source venv/bin/activate  # Linux/macOS
+# venv\Scripts\activate  # Windows
+
+pip install -r requirements.txt  # Instalar Flask, OpenAI e outras dependências
 ```
 
-### 2️⃣ **Configurar a Chave da API**
-Edite o arquivo `keys.py` e adicione sua chave da OpenAI:
-
+### 2️⃣ **Configurar Chave da OpenAI**
+Edite `keys.py` e insira sua chave:
 ```python
-chave_openai = "SUA_CHAVE_AQUI"
+chave_openai = "sua-chave-aqui"
 ```
 
-### 3️⃣ **Transcrever e Processar um Áudio**
-Para transcrever um áudio e gerar o relatório:
+### 3️⃣ **Executar Aplicação Web**
+```bash
+python app.py
+```
+Acesse http://localhost:5000 no navegador para:
+- Gravar/upload de áudio diretamente na interface
+- Visualizar relatórios processados
+- Acessar gráficos de eficiência
+- Download de relatórios em PDF
 
+### 4️⃣ **Fluxo de Processamento**
+1. Áudio é salvo em `data/audios/`
+2. Transcrição via OpenAI é armazenada temporariamente
+3. Relatório estruturado é gerado e salvo em `data/relatorios/`
+4. Gráficos são atualizados em `data/graficos/`
+
+### 5️⃣ **Geração de Relatórios (CLI)**
+Para processamento manual via terminal:
 ```python
 from transcrever_audio import transcrever_audio
 from inicio import organiza
 
-# Caminho do arquivo de áudio
-path = "data/WhatsApp Ptt 2025-02-22 at 08.54.35.ogg"
-
-# Transcrevendo o áudio
-texto = transcrever_audio(path)
-
-# Gerando o relatório e salvando no CSV
+texto = transcrever_audio("data/audios/seu_audio.ogg")
 relatorio = organiza(texto)
-
-# Exibindo o resultado
 print(relatorio)
 ```
 
-### 4️⃣ **Calcular a Eficiência e Gerar Relatórios**
-Para calcular a eficiência das tarefas e gerar gráficos:
-
+### 6️⃣ **Geração de Gráficos (CLI)**
 ```python
-from eficiencia import gerar_relatorio_eficiencia
-from graficos import gerar_graficos
+from graficos_material import gerar_graficos as graf_materiais
+from graficos_tempo import gerar_graficos as graf_tempo
 
-# Gerando o relatório de eficiência
-gerar_relatorio_eficiencia()
-
-# Gerando os gráficos a partir dos dados de eficiência
-gerar_graficos()
+graf_materiais()
+graf_tempo()
 ```
 
-### 5️⃣ **Saída Esperada**
-Após rodar o código, um relatório formatado será salvo em `relatorio_eficiencia.csv`, com as colunas:
+## 📊 Saída Esperada
+- Relatórios diários em CSV: `data/relatorios/relatorio_YYYY-MM-DD.csv`
+- Gráficos atualizados: 
+  - `data/graficos/eficiencia_material.png`
+  - `data/graficos/eficiencia_tempo.png`
+- PDF consolidado: `data/relatorios/relatorio_eficiencia.pdf`
 
-```
-Etapa, Tempo Gasto (min), Tempo Esperado (min), Diferença de Tempo, Status
-```
-
-Além disso, um PDF (relatorio_eficiencia.pdf) e gráficos correspondentes serão gerados e salvos na pasta apropriada.
+## 🌐 Recursos da Interface Web
+- Gravação de áudio direto no navegador
+- Upload de arquivos de áudio (formato OGG)
+- Visualização de histórico de relatórios
+- Dashboard interativo com métricas de eficiência
+- Download de relatórios em formato PDF
 
 ## 📜 Licença
-
-Este projeto está licenciado sob a licença Apache 2.0. Consulte o arquivo `LICENSE` para mais detalhes.
+Distribuído sob licença Apache 2.0. Veja [LICENSE](LICENSE) para detalhes.
