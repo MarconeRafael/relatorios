@@ -8,6 +8,7 @@ app = Flask(__name__)
 # Defina os diretórios para servir gráficos e relatórios dinamicamente
 app.config['GRAPHIQUE_DIR'] = os.path.join(os.getcwd(), 'data', 'graficos')
 app.config['RELATORIO_DIR'] = os.path.join(os.getcwd(), 'data', 'relatorios')
+app.config['AUDIOS_DIR'] = os.path.join(os.getcwd(), 'data', 'audios')
 
 # Tela principal com botão de gravação, transcrição e navegação
 @app.route("/")
@@ -24,7 +25,7 @@ def processar_audio():
         audio_file = request.files["audio_data"]
 
         # Salvar o arquivo temporariamente para processamento
-        temp_audio_path = os.path.join("data", "audios", audio_file.filename)
+        temp_audio_path = os.path.join(app.config['AUDIOS_DIR'], audio_file.filename)
         os.makedirs(os.path.dirname(temp_audio_path), exist_ok=True)
         audio_file.save(temp_audio_path)
 
@@ -35,6 +36,27 @@ def processar_audio():
         return jsonify({"transcricao": transcricao})
     except Exception as e:
         return jsonify({"error": f"Erro: {e}"}), 500
+
+# Endpoint para o processamento ao clicar em "Concluir"
+@app.route("/concluir", methods=["POST"])
+def concluir():
+    try:
+        # Obtém os textos transcritos do corpo da requisição
+        dados = request.get_json()
+        texto_inicial = dados.get('texto_inicial')
+        texto_final = dados.get('texto_final')
+
+        # Verifica se os textos foram fornecidos
+        if not texto_inicial or not texto_final:
+            return jsonify({"success": False, "error": "Textos de início e fim são obrigatórios."}), 400
+
+        # Chama a função processar_textos do main.py
+        main.processar_textos(texto_inicial, texto_final)
+
+        # Retorna uma resposta de sucesso
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 # Tela de Relatórios
 @app.route("/relatorios")

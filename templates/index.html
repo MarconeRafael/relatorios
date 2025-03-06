@@ -144,9 +144,29 @@
       const transcricaoInicio = textoTranscricaoInicio.value;
       const transcricaoFim = textoTranscricaoFim.value;
       
-      console.log("Transcrição Início:", transcricaoInicio);
-      console.log("Transcrição Fim:", transcricaoFim);
-      alert("Transcrições concluídas!");
+      // Envia os textos para o servidor
+      fetch('/concluir', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          texto_inicial: transcricaoInicio,
+          texto_final: transcricaoFim,
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Processamento concluído com sucesso!");
+        } else {
+          alert("Erro ao processar os textos: " + data.error);
+        }
+      })
+      .catch(error => {
+        console.error("Erro na requisição:", error);
+        alert("Erro ao enviar os textos para o servidor.");
+      });
     });
   </script>
 </body>
